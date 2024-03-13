@@ -68,6 +68,6 @@ Response: HTTP Status 200 OK
 ```
 
 ## Running the App
-1. Clone the repository: git clone <repository_url>
+1. Clone the repository: gh repo clone veerabalakrishnan1990/BookingApp
 2. Start the server: mvn spring-boot:run
 3. Access the APIs using the provided endpoints.
