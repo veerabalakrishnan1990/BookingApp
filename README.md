@@ -1,5 +1,6 @@
-Train Ticket Booking App
-Prerequisites
+#Train Ticket Booking App
+
+##Prerequisites
 Before running the Train Ticket Booking App, make sure you have Redis installed for persistence logic and distributed lock management.
 
 APIs
