@@ -5,8 +5,10 @@ Before running the Train Ticket Booking App, make sure you have Redis installed 
 APIs
 1. Book ticket
   Endpoint: POST /api/booking/book
-  Request Body:
-  ```json
+
+```json
+Request Body:
+
 {
   "userId": "1",
   "trainId": "2",
@@ -14,14 +16,17 @@ APIs
   "departureStation": "NewYork",
   "arrivalStation": "Wash"
 }
-```
+
 Response:
 Booking request processed for seat: 1A
+```
 
 2. View Receipt Details
 Endpoint: GET /api/booking/bookingInfo
-Request Body:
+
 ```json
+Request Body:
+
 {
     "userId": "1",
     "trainId":"2"
@@ -48,8 +53,10 @@ Response:
 
 4. Cancel ticket from Train
 Endpoint: POST /api/booking/cancel
-Request:
+
 ```json
+Request:
+
 {
     "userId": "1",
     "trainId": "2",
