@@ -1,3 +1,6 @@
+/**
+ * The BookedState class represents the state of a seat when it is already booked.
+ */
 package com.trainbookingapp.net.service;
 
 import com.trainbookingapp.net.model.Booking;
@@ -6,18 +9,35 @@ import com.trainbookingapp.net.repository.TrainRepository;
 
 import java.util.Optional;
 
+/**
+ * The BookedState class represents the state of a seat when it is already booked.
+ */
 public class BookedState implements BookingState {
     private final TrainRepository trainRepository;
 
+    /**
+     * Constructor for the BookedState class.
+     * @param trainRepository The TrainRepository instance for accessing train data.
+     */
     public BookedState(TrainRepository trainRepository) {
         this.trainRepository = trainRepository;
     }
 
+    /**
+     * Books a ticket for the provided booking.
+     * No-operation, as the seat is already booked.
+     * @param booking The Booking object representing the booking to be made.
+     */
     @Override
     public void bookTicket(Booking booking) {
         // No-operation, as the seat is already booked
     }
 
+    /**
+     * Cancels a booking for the provided booking.
+     * Moves the seat to the Available state on cancellation.
+     * @param booking The Booking object representing the booking to be cancelled.
+     */
     @Override
     public void cancelBooking(Booking booking) {
         String seatNumber = booking.getSeatNumber();
@@ -27,6 +47,12 @@ public class BookedState implements BookingState {
         System.out.println("Canceling booking for seat: " + seatNumber);
     }
 
+    /**
+     * Changes the state of the seat to the new state provided.
+     * Updates the corresponding booking state.
+     * @param booking The Booking object representing the booking.
+     * @param newState The new state to change to.
+     */
     private void changeState(Booking booking, BookingState newState) {
         String seatNumber =  booking.getSeatNumber();
         Optional<Train> train = trainRepository.findById(booking.getTrainId());

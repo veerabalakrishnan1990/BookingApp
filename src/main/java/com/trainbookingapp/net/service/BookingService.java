@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
+/**
+ * The BookingService class is responsible for managing the booking of train tickets, including handling seat allocation,
+ * cancellation, and retrieving booking information.
+ */
 @Service
 public class BookingService {
     @Autowired
@@ -23,11 +26,20 @@ public class BookingService {
     @Autowired
     private final RedissonClient redissonClient;
 
+    /**
+     * Constructor for BookingService class.
+     * @param redissonClient The RedissonClient instance for distributed lock management.
+     */
     @Autowired
     public BookingService(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
+    /**
+     * Books a train ticket based on the provided booking request.
+     * @param bookingRequest The BookingRequest object containing details of the booking.
+     * @return A String indicating the status of the booking request.
+     */
     public String bookTicket(BookingRequest bookingRequest) {
         String seatNumber = bookingRequest.getSeatNumber();
         Optional<Train> train = trainRepository.findById(bookingRequest.getTrainId());
@@ -85,6 +97,11 @@ public class BookingService {
         return "Failed to book the seat: " + seatNumber;
     }
 
+    /**
+     * Cancels a booked train ticket based on the provided cancel request.
+     * @param cancelRequest The CancelRequest object containing details of the cancellation.
+     * @return A String indicating the status of the cancellation request.
+     */
     public String cancelBooking(CancelRequest cancelRequest) {
         Optional<Train> train = trainRepository.findById(cancelRequest.getTrainId());
         Optional<Seat> seatObj = train.get().getSections().stream()
@@ -104,6 +121,11 @@ public class BookingService {
         }
     }
 
+    /**
+     * Retrieves booking information for a user on a particular train.
+     * @param bookingInfoRequest The BookingInfoRequest object containing details of the booking information request.
+     * @return A list of Seat objects representing the booked seats for the specified user on the given train.
+     */
    public List<Seat> getBookingInfo(BookingInfoRequest bookingInfoRequest) {
        Optional<Train> train = trainRepository.findById(bookingInfoRequest.getTrainId());
        List<Seat> seats = train.get().getSections().stream()
