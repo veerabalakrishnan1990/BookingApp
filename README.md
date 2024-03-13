@@ -77,5 +77,6 @@ The bookingApp has been thoroughly tested, achieving an impressive test coverage
 
 <img width="593" alt="image" src="https://github.com/veerabalakrishnan1990/BookingApp/assets/131878410/00c3e117-c674-4f3b-af66-5f3d598e0d70">
 
-<img width="442" alt="image" src="https://github.com/veerabalakrishnan1990/BookingApp/assets/131878410/5eb8cacc-32b0-43e7-bdad-0897cc910f43">
+
+  <img width="442" alt="image" src="https://github.com/veerabalakrishnan1990/BookingApp/assets/131878410/5eb8cacc-32b0-43e7-bdad-0897cc910f43">
 
