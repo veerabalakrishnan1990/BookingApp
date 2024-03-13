@@ -1,4 +1,4 @@
-package com.trainbookingapp.bookingapp;
+package com.trainbookingapp.net;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
