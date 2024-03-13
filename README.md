@@ -6,15 +6,15 @@ APIs
 1. Book ticket
   Endpoint: POST /api/booking/book
   Request Body:
-  
-  {
-      "userId": "1",
-      "trainId": "2",
-      "seatNumber": "1A",
-      "departureStation": "NewYork",
-      "arrivalStation": "Wash"
-  }
-
+  ```json
+{
+  "userId": "1",
+  "trainId": "2",
+  "seatNumber": "1A",
+  "departureStation": "NewYork",
+  "arrivalStation": "Wash"
+}
+```
 Response:
 Booking request processed for seat: 1A
 
