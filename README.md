@@ -21,6 +21,7 @@ Booking request processed for seat: 1A
 2. View Receipt Details
 Endpoint: GET /api/booking/bookingInfo
 Request Body:
+```json
 {
     "userId": "1",
     "trainId":"2"
@@ -43,11 +44,12 @@ Response:
         }
     }
 ]
+```
 
 4. Cancel ticket from Train
 Endpoint: POST /api/booking/cancel
 Request:
-
+```json
 {
     "userId": "1",
     "trainId": "2",
@@ -55,6 +57,7 @@ Request:
 }
 
 Response: HTTP Status 200 OK
+```
 
 Running the App
 1. Clone the repository: git clone <repository_url>
