@@ -1,10 +1,10 @@
-#Train Ticket Booking App
+# Train Ticket Booking App
 
-##Prerequisites
+## Prerequisites
 Before running the Train Ticket Booking App, make sure you have Redis installed for persistence logic and distributed lock management.
 
 APIs
-1. Book ticket
+## 1. Book ticket
   Endpoint: POST /api/booking/book
 
 ```json
@@ -22,7 +22,7 @@ Response:
 Booking request processed for seat: 1A
 ```
 
-2. View Receipt Details
+## 2. View Receipt Details
 Endpoint: GET /api/booking/bookingInfo
 
 ```json
@@ -52,7 +52,7 @@ Response:
 ]
 ```
 
-4. Cancel ticket from Train
+## 3. Cancel ticket from Train
 Endpoint: POST /api/booking/cancel
 
 ```json
@@ -67,7 +67,7 @@ Request:
 Response: HTTP Status 200 OK
 ```
 
-Running the App
+## Running the App
 1. Clone the repository: git clone <repository_url>
 2. Start the server: mvn spring-boot:run
 3. Access the APIs using the provided endpoints.
