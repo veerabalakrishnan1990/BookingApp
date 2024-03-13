@@ -1,0 +1,219 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > BookingService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.trainbookingapp.net.service</a>
+</div>
+
+<h1>Coverage Summary for Class: BookingService (com.trainbookingapp.net.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BookingService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (2/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    34%
+  </span>
+  <span class="absValue">
+    (18/53)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.trainbookingapp.net.service;
+&nbsp;
+&nbsp;import com.trainbookingapp.net.model.*;
+&nbsp;import com.trainbookingapp.net.repository.TrainRepository;
+&nbsp;import com.trainbookingapp.net.repository.UserRepository;
+&nbsp;import org.redisson.api.RLock;
+&nbsp;import org.redisson.api.RedissonClient;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;import java.util.concurrent.TimeUnit;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;@Service
+&nbsp;public class BookingService {
+&nbsp;    @Autowired
+&nbsp;    private TrainRepository trainRepository;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private UserRepository userRepository;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private final RedissonClient redissonClient;
+&nbsp;
+&nbsp;    @Autowired
+<b class="fc">&nbsp;    public BookingService(RedissonClient redissonClient) {</b>
+<b class="fc">&nbsp;        this.redissonClient = redissonClient;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String bookTicket(BookingRequest bookingRequest) {
+<b class="fc">&nbsp;        String seatNumber = bookingRequest.getSeatNumber();</b>
+<b class="fc">&nbsp;        Optional&lt;Train&gt; train = trainRepository.findById(bookingRequest.getTrainId());</b>
+<b class="fc">&nbsp;        Optional&lt;Seat&gt; seat = train.get().getSections().stream()</b>
+<b class="fc">&nbsp;                .flatMap(section -&gt; section.getSeats().stream())</b>
+<b class="fc">&nbsp;                .filter(seat1 -&gt; seatNumber.equals(seat1.getSeatNumber()))</b>
+<b class="fc">&nbsp;                .findFirst();</b>
+<b class="fc">&nbsp;        Optional&lt;User&gt; user = userRepository.findById(bookingRequest.getUserId());</b>
+&nbsp;
+&nbsp;        // Define a lock key
+<b class="fc">&nbsp;        String lockKey = &quot;lock:seat:&quot; + seatNumber;</b>
+&nbsp;
+&nbsp;        // Get the distributed lock
+<b class="fc">&nbsp;        RLock lock = redissonClient.getLock(lockKey);</b>
+&nbsp;
+&nbsp;        try {
+&nbsp;            // Check seat availability
+<b class="fc">&nbsp;            if (seat.isPresent() &amp;&amp; seat.get().getState().equalsIgnoreCase(&quot;AvailableState&quot;)) {</b>
+&nbsp;                // Try to acquire the lock with a timeout
+<b class="fc">&nbsp;                if (lock.tryLock(10, TimeUnit.SECONDS)) {</b>
+&nbsp;                    // Perform the booking logic here
+<b class="nc">&nbsp;                    Booking booking = new Booking();</b>
+<b class="nc">&nbsp;                    booking.setId(UUID.randomUUID().toString());</b>
+<b class="nc">&nbsp;                    booking.setTrainId(train.get().getId());</b>
+<b class="nc">&nbsp;                    booking.setArrivalStation(bookingRequest.getArrivalStation());</b>
+<b class="nc">&nbsp;                    booking.setDepartureStation(bookingRequest.getDepartureStation());</b>
+<b class="nc">&nbsp;                    booking.setSeatNumber(seat.get().getSeatNumber());</b>
+<b class="nc">&nbsp;                    booking.setUser(user.get().getId());</b>
+&nbsp;
+<b class="nc">&nbsp;                    AvailableState availableState = new AvailableState(trainRepository);</b>
+&nbsp;                    // Delegate the bookTicket operation to the current state
+<b class="nc">&nbsp;                    availableState.bookTicket(booking);</b>
+<b class="nc">&nbsp;                    return &quot;Booking request processed for seat: &quot; + bookingRequest.getSeatNumber();</b>
+&nbsp;
+&nbsp;                } else {
+&nbsp;                    // Unable to acquire the lock, meaning someone else is booking the same seat
+<b class="nc">&nbsp;                    System.out.println(&quot;Seat &quot; + seatNumber + &quot; is already being booked by another user.&quot;);</b>
+<b class="nc">&nbsp;                    return &quot;Seat &quot; + seatNumber + &quot; is already being booked by another user.&quot;;</b>
+&nbsp;                }
+&nbsp;            } else {
+<b class="fc">&nbsp;                System.out.println(&quot;Seat &quot; + seatNumber + &quot; is already booked by another user.&quot;);</b>
+<b class="fc">&nbsp;                return &quot;Seat &quot; + seatNumber + &quot; is already booked by another user.&quot;;</b>
+&nbsp;            }
+<b class="nc">&nbsp;        } catch (InterruptedException e) {</b>
+<b class="nc">&nbsp;            Thread.currentThread().interrupt();</b>
+&nbsp;        } finally {
+&nbsp;            // Release the lock
+<b class="fc">&nbsp;            if (Objects.nonNull(lock) &amp;&amp; lock.isHeldByCurrentThread()) {</b>
+<b class="nc">&nbsp;                lock.forceUnlock();</b>
+<b class="nc">&nbsp;                System.out.println(&quot;Lock released.&quot;);</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                System.out.println(&quot;Lock not held by current thread.&quot;);</b>
+&nbsp;            }
+<b class="fc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return &quot;Failed to book the seat: &quot; + seatNumber;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String cancelBooking(CancelRequest cancelRequest) {
+<b class="nc">&nbsp;        Optional&lt;Train&gt; train = trainRepository.findById(cancelRequest.getTrainId());</b>
+<b class="nc">&nbsp;        Optional&lt;Seat&gt; seatObj = train.get().getSections().stream()</b>
+<b class="nc">&nbsp;                .flatMap(section -&gt; section.getSeats().stream())</b>
+<b class="nc">&nbsp;                .filter(seat -&gt; cancelRequest.getSeatNumber().equals(seat.getSeatNumber()))</b>
+<b class="nc">&nbsp;                .findFirst();</b>
+&nbsp;
+<b class="nc">&nbsp;        Booking booking = seatObj.get().getBooking();</b>
+&nbsp;
+<b class="nc">&nbsp;        if (Objects.nonNull(booking) &amp;&amp; seatObj.get().getState().equalsIgnoreCase(&quot;BookedState&quot;)) {</b>
+<b class="nc">&nbsp;            BookedState bookedState = new BookedState(trainRepository);</b>
+<b class="nc">&nbsp;            booking.setTrainId(train.get().getId());</b>
+<b class="nc">&nbsp;            bookedState.cancelBooking(booking);</b>
+<b class="nc">&nbsp;            return &quot;Cancellation request processed for seat: &quot; + cancelRequest.getSeatNumber();</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return &quot;No booking found for seat: &quot; + booking.getSeatNumber();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;   public List&lt;Seat&gt; getBookingInfo(BookingInfoRequest bookingInfoRequest) {
+<b class="nc">&nbsp;       Optional&lt;Train&gt; train = trainRepository.findById(bookingInfoRequest.getTrainId());</b>
+<b class="nc">&nbsp;       List&lt;Seat&gt; seats = train.get().getSections().stream()</b>
+<b class="nc">&nbsp;               .flatMap(section -&gt; section.getSeats().stream().filter(seat -&gt; seat.getState().equalsIgnoreCase(&quot;BookedState&quot;)))</b>
+<b class="nc">&nbsp;               .filter(seat -&gt; seat.getBooking() != null &amp;&amp; bookingInfoRequest.getUserId().equals(seat.getBooking().getUser()))</b>
+<b class="nc">&nbsp;               .collect(Collectors.toList());</b>
+<b class="nc">&nbsp;       return seats;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-03-13 18:30</div>
+</div>
+</body>
+</html>
